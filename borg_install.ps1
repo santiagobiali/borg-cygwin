@@ -1,6 +1,7 @@
 $BORG_PATH="C:\Borg"
 $CYGMIRROR="http://mirrors.kernel.org/sourceware/cygwin/"
-$BUILDPKGS="python38,python38-devel,python38-pkgconfig,python38-setuptools,python38-pip,python38-wheel,libssl-devel,libxxhash-devel,liblz4-devel,libzstd-devel,binutils,gcc-g++,git,make,openssh,email,zlib-dev,zlib-devel"
+$BUILDPKGS="python39,python39-devel,python39-pkgconfig,python39-setuptools,python39-pip,python39-wheel,libssl-devel,libxxhash-devel,liblz4-devel,libzstd-devel,binutils,gcc-g++,git,make,openssh,email,zlib-devel"
+$REMOVEPKGS="python38,python38-devel,python38-pkgconfig,python38-setuptools,python38-pip,python38-wheel"
 
 If (-Not (Test-Path "$BORG_PATH\cygwin")){
 	New-Item -Path "$BORG_PATH\cygwin" -ItemType Directory
@@ -10,15 +11,15 @@ If (-Not (Test-Path "$BORG_PATH\cygwin")){
 
 echo "Installing Cygwin..."
 cd "$BORG_PATH\cygwin"
-Start-Process "$BORG_PATH\cygwin\setup-x86_64.exe" -ArgumentList "-a x86_64 -q -B -o -n -R $BORG_PATH\cygwin -s $CYGMIRROR -P $BUILDPKGS" -Wait
+Start-Process "$BORG_PATH\cygwin\setup-x86_64.exe" -ArgumentList "-a x86_64 -q -B -o -n -R $BORG_PATH\cygwin -s $CYGMIRROR -P $BUILDPKGS --remove-packages $REMOVEPKGS" -Wait
 ((Get-Content -path "$BORG_PATH\cygwin\etc\fstab" -Raw) -replace 'none /cygdrive cygdrive binary,posix=0,user 0 0','none / cygdrive binary,posix=0,user 0 0') | Set-Content -Path "$BORG_PATH\cygwin\etc\fstab"
 ((Get-Content -path "$BORG_PATH\cygwin\etc\nsswitch.conf" -Raw) -replace '# db_enum:  cache builtin','db_enum:  cache builtin') | Set-Content -Path "$BORG_PATH\cygwin\etc\nsswitch.conf"
 Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'cygserver-config'" -Wait -NoNewWindow
 
 echo "Installing Borg into cygwin"
-Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip3 install -U pip'" -Wait -NoNewWindow
-Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install setuptools wheel pkgconfig'" -Wait -NoNewWindow
-Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install -U setuptools wheel pkgconfig'" -Wait -NoNewWindow
+Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'python -m pip install -U pip'" -Wait -NoNewWindow
+Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install setuptools wheel pkgconfig msgpack'" -Wait -NoNewWindow
+Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install -U setuptools wheel pkgconfig msgpack'" -Wait -NoNewWindow
 Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install borgbackup'" -Wait -NoNewWindow
 Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'pip install -U borgbackup'" -Wait -NoNewWindow
 Start-Process "$BORG_PATH\cygwin\bin\bash" -ArgumentList "--login -c 'borg --version'" -Wait -NoNewWindow
